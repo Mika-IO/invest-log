@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Carteira de Investimentos</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="h-full bg-slate-100 text-slate-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-700 text-white py-4 shadow">
+        <h1 class="text-center text-2xl font-semibold">InvestLog</h1>
+    </header>
+
+    <main class="flex-1 container mx-auto p-4 space-y-10">
+
+        <!-- ===== Formulário ===== -->
+        <section class="bg-white rounded-xl shadow p-6">
+            <h2 id="formTitle" class="text-xl font-semibold mb-4">Registrar Aporte</h2>
+
+            <form id="aporteForm" class="grid gap-4 md:grid-cols-4">
+                <input type="hidden" id="editIndex" value="">
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="ticker">Ticker</label>
+                    <input id="ticker" placeholder="PETR4, BTC, MXRF11..."
+                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="quantidade">Quantidade</label>
+                    <input id="quantidade" type="number" step="any"
+                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="preco">Preço (R$)</label>
+                    <input id="preco" type="number" step="any"
+                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button id="salvarBtn"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded">
+                        Salvar
+                    </button>
+                    <button id="cancelarBtn" type="button" hidden
+                        class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-semibold px-4 py-2 rounded">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== Aportes ===== -->
+        <section class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Aportes</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-slate-200">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Ticker</th>
+                            <th class="px-3 py-2 text-right">Quantidade</th>
+                            <th class="px-3 py-2 text-right">Preço (R$)</th>
+                            <th class="px-3 py-2 text-right">Total (R$)</th>
+                            <th class="px-3 py-2"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaAportes" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== Resumo ===== -->
+        <section class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Resumo</h2>
+                <button id="exportCsvBtn"
+                    class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded">
+                    <!-- setinha simples -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-width="2" d="M12 3v13m0 0-4-4m4 4 4-4m-9 9h10" />
+                    </svg>
+                    Exportar CSV
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-slate-200">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Ticker</th>
+                            <th class="px-3 py-2 text-right">Qtd.</th>
+                            <th class="px-3 py-2 text-right">Custo Médio (R$)</th>
+                            <th class="px-3 py-2 text-right">Investido (R$)</th>
+                            <th class="px-3 py-2 text-right">Preço Atual (R$)</th>
+                            <th class="px-3 py-2 text-right">Valor Atual (R$)</th>
+                            <th class="px-3 py-2 text-right">Retorno (R$)</th>
+                            <th class="px-3 py-2 text-right">Retorno (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaResumo" class="divide-y divide-slate-100"></tbody>
+                    <tfoot class="font-semibold bg-slate-100">
+                        <tr>
+                            <td class="px-3 py-2">TOTAL</td>
+                            <td id="totQtd" class="px-3 py-2 text-right"></td>
+                            <td class="px-3 py-2"></td>
+                            <td id="totInv" class="px-3 py-2 text-right"></td>
+                            <td class="px-3 py-2"></td>
+                            <td id="totVal" class="px-3 py-2 text-right"></td>
+                            <td id="totRet" class="px-3 py-2 text-right"></td>
+                            <td id="totPct" class="px-3 py-2 text-right"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <p class="text-xs text-slate-500 mt-3">Altere o “Preço Atual” para recalcular imediatamente.</p>
+        </section>
+    </main>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        /* ---------- Estado ---------- */
+        let aportes = JSON.parse(localStorage.getItem('aportes') || '[]');
+        let precosAtuais = JSON.parse(localStorage.getItem('precosAtuais') || '{}');
+
+        const save = () => {
+            localStorage.setItem('aportes', JSON.stringify(aportes));
+            localStorage.setItem('precosAtuais', JSON.stringify(precosAtuais));
+        };
+        const R$ = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        /* ---------- Formulário ---------- */
+        const fTicker = document.getElementById('ticker');
+        const fQtd = document.getElementById('quantidade');
+        const fPreco = document.getElementById('preco');
+        const editIdx = document.getElementById('editIndex');
+        const cancelar = document.getElementById('cancelarBtn');
+
+        document.getElementById('aporteForm').onsubmit = e => {
+            e.preventDefault();
+
+            const reg = {
+                ticker: fTicker.value.trim().toUpperCase(),
+                quantidade: +fQtd.value,
+                preco: +fPreco.value
+            };
+
+            /* ──────────── NOVO APORTE ──────────── */
+            if (editIdx.value === '') {
+                // adiciona o novo registro
+                aportes.push(reg);
+
+                // sempre que for um NOVO aporte,
+                // o “Preço Atual” vira o preço deste aporte
+                precosAtuais[reg.ticker] = reg.preco;
+            }
+
+            /* ──────────── EDIÇÃO ──────────── */
+            else {
+                // apenas substitui o aporte existente;
+                // não altera o preço atual já definido manualmente
+                aportes[+editIdx.value] = reg;
+            }
+
+            save();       // persiste no localStorage
+            resetForm();  // limpa o formulário
+            renderAll();  // recalcula tabelas
+        };
+
+        cancelar.onclick = resetForm;
+        function resetForm() {
+            editIdx.value = '';
+            eFormTitle('Registrar Aporte');
+            cancelar.hidden = true;
+            fTicker.value = fQtd.value = fPreco.value = '';
+        }
+        const eFormTitle = txt => document.getElementById('formTitle').textContent = txt;
+
+        /* ---------- Renderizações ---------- */
+        function renderAportes() {
+            const tbody = document.getElementById('tabelaAportes');
+            tbody.innerHTML = '';
+            aportes.forEach((ap, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td class="px-3 py-2">${ap.ticker}</td>
+          <td class="px-3 py-2 text-right">${ap.quantidade}</td>
+          <td class="px-3 py-2 text-right">${R$(ap.preco)}</td>
+          <td class="px-3 py-2 text-right">${R$(ap.quantidade * ap.preco)}</td>
+          <td class="px-3 py-2 flex gap-2 justify-center">
+            <!-- botão editar -->
+            <button class="text-amber-600 hover:text-amber-800" data-edit="${i}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 17v3h3l9-9-3-3-9 9Z"/><path d="m13 7 3 3 3-3-3-3-3 3Z"/>
+              </svg>
+            </button>
+            <!-- botão excluir -->
+            <button class="text-rose-600 hover:text-rose-800" data-del="${i}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 6h14M9 6v12m6-12v12M4 6l1 14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-14M10 6V4h4v2"/>
+              </svg>
+            </button>
+          </td>`;
+                tbody.appendChild(tr);
+            });
+
+            // listeners
+            tbody.querySelectorAll('[data-edit]').forEach(btn => {
+                btn.onclick = () => {
+                    const idx = +btn.dataset.edit, ap = aportes[idx];
+                    fTicker.value = ap.ticker; fQtd.value = ap.quantidade; fPreco.value = ap.preco;
+                    editIdx.value = idx; eFormTitle('Editar Aporte'); cancelar.hidden = false;
+                };
+            });
+            tbody.querySelectorAll('[data-del]').forEach(btn => {
+                btn.onclick = () => {
+                    if (confirm('Excluir este aporte?')) {
+                        aportes.splice(+btn.dataset.del, 1); save(); renderAll();
+                    }
+                };
+            });
+        }
+
+        function getResumo() {
+            const r = {};
+            for (const { ticker, quantidade, preco } of aportes) {
+                if (!r[ticker]) r[ticker] = { qtd: 0, inv: 0 };
+                r[ticker].qtd += quantidade;
+                r[ticker].inv += quantidade * preco;
+            }
+            return r;
+        }
+
+        function renderResumo() {
+            const tbody = document.getElementById('tabelaResumo');
+            tbody.innerHTML = '';
+            const res = getResumo();
+            let totQtd = 0, totInv = 0, totVal = 0;
+
+            Object.entries(res).forEach(([t, { qtd, inv }]) => {
+                const p = +precosAtuais[t] || 0;
+                const val = qtd * p, ret = val - inv, pct = inv ? ret / inv * 100 : 0;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td class="px-3 py-2">${t}</td>
+          <td class="px-3 py-2 text-right">${qtd}</td>
+          <td class="px-3 py-2 text-right">${R$(inv / qtd)}</td>
+          <td class="px-3 py-2 text-right">${R$(inv)}</td>
+          <td class="px-3 py-2 text-right">
+            <input type="number" step="any" value="${p || ''}" data-ticker="${t}"
+              class="w-24 text-right border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 price">
+          </td>
+          <td class="px-3 py-2 text-right">${p ? R$(val) : '—'}</td>
+          <td class="px-3 py-2 text-right">${p ? R$(ret) : '—'}</td>
+          <td class="px-3 py-2 text-right">${p ? pct.toFixed(2) + '%' : '—'}</td>`;
+                tbody.appendChild(tr);
+
+                totQtd += qtd; totInv += inv; totVal += val;
+            });
+
+            const totRet = totVal - totInv, totPct = totInv ? totRet / totInv * 100 : 0;
+            id('totQtd').textContent = totQtd || '—';
+            id('totInv').textContent = totInv ? R$(totInv) : '—';
+            id('totVal').textContent = totVal ? R$(totVal) : '—';
+            id('totRet').textContent = totInv ? R$(totRet) : '—';
+            id('totPct').textContent = totInv ? totPct.toFixed(2) + '%' : '—';
+
+            // preço atual → recalcular
+            tbody.querySelectorAll('.price').forEach(inp => {
+                inp.onchange = () => {
+                    const t = inp.dataset.ticker, v = +inp.value;
+                    if (v > 0) precosAtuais[t] = v; else delete precosAtuais[t];
+                    save(); renderResumo();
+                };
+            });
+        }
+
+        /* ---------- CSV ---------- */
+        document.getElementById('exportCsvBtn').onclick = () => {
+            const linha = [['Ticker', 'Qtd', 'Custo Médio', 'Investido', 'Preço Atual', 'Valor Atual', 'Retorno', 'Retorno %']];
+            const res = getResumo();
+            Object.entries(res).forEach(([t, { qtd, inv }]) => {
+                const p = +precosAtuais[t] || 0, val = qtd * p, ret = val - inv, pct = inv ? ret / inv * 100 : 0;
+                linha.push([t, qtd, (inv / qtd).toFixed(2).replace('.', ','), inv.toFixed(2).replace('.', ','),
+                    p.toFixed(2).replace('.', ','), val.toFixed(2).replace('.', ','),
+                    ret.toFixed(2).replace('.', ','), pct.toFixed(2).replace('.', ',') + '%']);
+            });
+            const csv = linha.map(l => l.join(';')).join('\n');
+            const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            const a = document.createElement('a'); a.href = url; a.download = 'carteira.csv';
+            document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        };
+
+        /* ---------- Utilidade ---------- */
+        const id = x => document.getElementById(x);
+
+        /* ---------- Inicialização ---------- */
+        function renderAll() { renderAportes(); renderResumo(); }
+        renderAll();
+        id('anoAtual').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
