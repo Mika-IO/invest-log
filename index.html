@@ -4,123 +4,151 @@
 <head>
     <meta charset="UTF-8" />
     <title>Carteira de Investimentos</title>
-
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body class="h-full bg-slate-100 text-slate-800 flex flex-col">
-
+<body class="h-full bg-gray-50 text-gray-900 flex flex-col">
     <!-- Header -->
-    <header class="bg-indigo-700 text-white py-4 shadow">
-        <h1 class="text-center text-2xl font-semibold">InvestLog</h1>
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-5 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <i class="fas fa-chart-line"></i>
+                InvestLog
+            </h1>
+            <div class="flex items-center gap-2">
+                <span id="dataAtual" class="text-sm font-medium"></span>
+            </div>
+        </div>
     </header>
 
-    <main class="flex-1 container mx-auto p-4 space-y-10">
+    <main class="flex-1 container mx-auto p-4 space-y-8">
+        <!-- Formulário -->
+        <section class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
 
-        <!-- ===== Formulário ===== -->
-        <section class="bg-white rounded-xl shadow p-6">
-            <h2 id="formTitle" class="text-xl font-semibold mb-4">Registrar Aporte</h2>
 
-            <form id="aporteForm" class="grid gap-4 md:grid-cols-4">
+            <form id="aporteForm" class="grid gap-5 md:grid-cols-5">
                 <input type="hidden" id="editIndex" value="">
                 <div>
-                    <label class="block text-sm font-medium mb-1" for="ticker">Ticker</label>
-                    <input id="ticker" placeholder="PETR4, BTC, MXRF11..."
-                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <label class="block text-sm font-medium mb-2 text-gray-600" for="ticker">Ticker</label>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input id="ticker" placeholder="PETR4, BTC, MXRF11..."
+                            class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1" for="quantidade">Quantidade</label>
-                    <input id="quantidade" type="number" step="any"
-                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <label class="block text-sm font-medium mb-2 text-gray-600" for="quantidade">Quantidade</label>
+                    <div class="relative">
+                        <input id="quantidade" type="number" step="any"
+                            class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1" for="preco">Preço (R$)</label>
-                    <input id="preco" type="number" step="any"
-                        class="w-full rounded border-slate-300 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <label class="block text-sm font-medium mb-2 text-gray-600" for="preco">Preço (R$)</label>
+                    <div class="relative">
+                        <i class="fas fa-dollar-sign absolute left-3 top-3 text-gray-400"></i>
+                        <input id="preco" type="number" step="any"
+                            class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+                    </div>
                 </div>
-                <div class="flex items-end gap-2">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-600" for="dataAporte">Data</label>
+                    <input id="dataAporte" type="date" class="w-full px-3 py-2.5 rounded-lg border border-gray-300
+                focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+                </div>
+
+                <div class="flex items-end gap-3">
                     <button id="salvarBtn"
-                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded">
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i>
                         Salvar
-                    </button>
-                    <button id="cancelarBtn" type="button" hidden
-                        class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-semibold px-4 py-2 rounded">
-                        Cancelar
                     </button>
                 </div>
             </form>
         </section>
 
-        <!-- ===== Aportes ===== -->
-        <section class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-semibold mb-4">Aportes</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-slate-200">
-                        <tr>
-                            <th class="px-3 py-2 text-left">Ticker</th>
-                            <th class="px-3 py-2 text-right">Quantidade</th>
-                            <th class="px-3 py-2 text-right">Preço (R$)</th>
-                            <th class="px-3 py-2 text-right">Total (R$)</th>
-                            <th class="px-3 py-2"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaAportes" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ===== Resumo ===== -->
-        <section class="bg-white rounded-xl shadow p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold">Resumo</h2>
-                <button id="exportCsvBtn"
-                    class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded">
-                    <!-- setinha simples -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-width="2" d="M12 3v13m0 0-4-4m4 4 4-4m-9 9h10" />
-                    </svg>
-                    Exportar CSV
-                </button>
+        <!-- Resumo -->
+        <section class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-3">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-indigo-600"></i>
+                    Resumo da Carteira
+                </h2>
+                <div class="flex gap-3">
+                    <button id="exportCsvBtn"
+                        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg transition">
+                        <i class="fas fa-file-export"></i>
+                        Exportar CSV
+                    </button>
+                </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-slate-200">
-                        <tr>
-                            <th class="px-3 py-2 text-left">Ticker</th>
-                            <th class="px-3 py-2 text-right">Qtd.</th>
-                            <th class="px-3 py-2 text-right">Custo Médio (R$)</th>
-                            <th class="px-3 py-2 text-right">Investido (R$)</th>
-                            <th class="px-3 py-2 text-right">Preço Atual (R$)</th>
-                            <th class="px-3 py-2 text-right">Valor Atual (R$)</th>
-                            <th class="px-3 py-2 text-right">Retorno (R$)</th>
-                            <th class="px-3 py-2 text-right">Retorno (%)</th>
+                    <thead class="bg-gray-100">
+                        <tr class="text-gray-700">
+                            <th class="px-4 py-3 text-left font-semibold rounded-tl-lg">Ticker</th>
+                            <th class="px-4 py-3 text-right font-semibold">Qtd.</th>
+                            <th class="px-4 py-3 text-right font-semibold">Custo Médio (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold">Investido (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold">Preço Atual (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold">Valor Atual (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold">Retorno (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold rounded-tr-lg">Retorno (%)</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaResumo" class="divide-y divide-slate-100"></tbody>
-                    <tfoot class="font-semibold bg-slate-100">
+                    <tbody id="tabelaResumo" class="divide-y divide-gray-100"></tbody>
+                    <tfoot class="font-semibold bg-gray-50">
                         <tr>
-                            <td class="px-3 py-2">TOTAL</td>
-                            <td id="totQtd" class="px-3 py-2 text-right"></td>
-                            <td class="px-3 py-2"></td>
-                            <td id="totInv" class="px-3 py-2 text-right"></td>
-                            <td class="px-3 py-2"></td>
-                            <td id="totVal" class="px-3 py-2 text-right"></td>
-                            <td id="totRet" class="px-3 py-2 text-right"></td>
-                            <td id="totPct" class="px-3 py-2 text-right"></td>
+                            <td class="px-4 py-3 font-bold rounded-bl-lg">TOTAL</td>
+                            <td id="totQtd" class="px-4 py-3 text-right font-bold"></td>
+                            <td class="px-4 py-3"></td>
+                            <td id="totInv" class="px-4 py-3 text-right font-bold"></td>
+                            <td class="px-4 py-3"></td>
+                            <td id="totVal" class="px-4 py-3 text-right font-bold"></td>
+                            <td id="totRet" class="px-4 py-3 text-right font-bold"></td>
+                            <td id="totPct" class="px-4 py-3 text-right font-bold rounded-br-lg"></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
+        </section>
 
-            <p class="text-xs text-slate-500 mt-3">Altere o “Preço Atual” para recalcular imediatamente.</p>
+        <!-- Aportes -->
+        <section class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-list text-indigo-600"></i>
+                    Aportes
+                </h2>
+                <span class="text-sm text-gray-500">
+                    Total: <span id="totalAportes">0</span>
+                </span>
+            </div>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-100">
+                        <tr class="text-gray-700">
+                            <th class="px-4 py-3 text-left font-semibold rounded-tl-lg">Ticker</th>
+                            <th class="px-4 py-3 text-right font-semibold">Quantidade</th>
+                            <th class="px-4 py-3 text-right font-semibold">Preço (R$)</th>
+                            <th class="px-4 py-3 text-right font-semibold">Total (R$)</th>
+                            <th class="px-4 py-3 text-center font-semibold">Data</th>
+                            <th class="px-4 py-3 text-center font-semibold rounded-tr-lg">Ações</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaAportes" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
         </section>
     </main>
 
-    <!-- ===== JavaScript ===== -->
+
+    <!-- JavaScript -->
     <script>
         /* ---------- Estado ---------- */
         let aportes = JSON.parse(localStorage.getItem('aportes') || '[]');
@@ -137,7 +165,7 @@
         const fQtd = document.getElementById('quantidade');
         const fPreco = document.getElementById('preco');
         const editIdx = document.getElementById('editIndex');
-        const cancelar = document.getElementById('cancelarBtn');
+        const fData = document.getElementById('dataAporte');
 
         document.getElementById('aporteForm').onsubmit = e => {
             e.preventDefault();
@@ -145,7 +173,8 @@
             const reg = {
                 ticker: fTicker.value.trim().toUpperCase(),
                 quantidade: +fQtd.value,
-                preco: +fPreco.value
+                preco: +fPreco.value,
+                data: fData.value || new Date().toISOString().slice(0, 10)
             };
 
             /* ──────────── NOVO APORTE ──────────── */
@@ -170,51 +199,57 @@
             renderAll();  // recalcula tabelas
         };
 
-        cancelar.onclick = resetForm;
         function resetForm() {
             editIdx.value = '';
-            eFormTitle('Registrar Aporte');
-            cancelar.hidden = true;
-            fTicker.value = fQtd.value = fPreco.value = '';
+            fTicker.value = fQtd.value = fPreco.value = fData.value = '';
+
         }
-        const eFormTitle = txt => document.getElementById('formTitle').textContent = txt;
 
         /* ---------- Renderizações ---------- */
         function renderAportes() {
             const tbody = document.getElementById('tabelaAportes');
             tbody.innerHTML = '';
+            document.getElementById('totalAportes').textContent = aportes.length;
+
             aportes.forEach((ap, i) => {
                 const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition';
                 tr.innerHTML = `
-          <td class="px-3 py-2">${ap.ticker}</td>
-          <td class="px-3 py-2 text-right">${ap.quantidade}</td>
-          <td class="px-3 py-2 text-right">${R$(ap.preco)}</td>
-          <td class="px-3 py-2 text-right">${R$(ap.quantidade * ap.preco)}</td>
-          <td class="px-3 py-2 flex gap-2 justify-center">
-            <!-- botão editar -->
-            <button class="text-amber-600 hover:text-amber-800" data-edit="${i}">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 17v3h3l9-9-3-3-9 9Z"/><path d="m13 7 3 3 3-3-3-3-3 3Z"/>
-              </svg>
-            </button>
-            <!-- botão excluir -->
-            <button class="text-rose-600 hover:text-rose-800" data-del="${i}">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M5 6h14M9 6v12m6-12v12M4 6l1 14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-14M10 6V4h4v2"/>
-              </svg>
-            </button>
-          </td>`;
+                    <td class="px-4 py-3 font-medium">${ap.ticker}</td>
+                    <td class="px-4 py-3 text-right">${ap.quantidade}</td>
+                    <td class="px-4 py-3 text-right">${R$(ap.preco)}</td>
+                    <td class="px-4 py-3 text-right font-medium">${R$(ap.quantidade * ap.preco)}</td>
+                    <td class="px-4 py-3 text-center">
+                        ${new Date(ap.data).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td class="px-4 py-3 flex gap-2 justify-center">
+                        <button class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-50 transition" 
+                                data-edit="${i}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition" 
+                                data-del="${i}" title="Excluir">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>`;
                 tbody.appendChild(tr);
             });
 
             // listeners
             tbody.querySelectorAll('[data-edit]').forEach(btn => {
                 btn.onclick = () => {
-                    const idx = +btn.dataset.edit, ap = aportes[idx];
-                    fTicker.value = ap.ticker; fQtd.value = ap.quantidade; fPreco.value = ap.preco;
-                    editIdx.value = idx; eFormTitle('Editar Aporte'); cancelar.hidden = false;
+                    const idx = +btn.dataset.edit,
+                        ap = aportes[idx];
+
+                    fTicker.value = ap.ticker;
+                    fQtd.value = ap.quantidade;
+                    fPreco.value = ap.preco;
+                    fData.value = ap.data || '';
+
+                    editIdx.value = idx;
                 };
             });
+
             tbody.querySelectorAll('[data-del]').forEach(btn => {
                 btn.onclick = () => {
                     if (confirm('Excluir este aporte?')) {
@@ -245,18 +280,27 @@
                 const val = qtd * p, ret = val - inv, pct = inv ? ret / inv * 100 : 0;
 
                 const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition';
                 tr.innerHTML = `
-          <td class="px-3 py-2">${t}</td>
-          <td class="px-3 py-2 text-right">${qtd}</td>
-          <td class="px-3 py-2 text-right">${R$(inv / qtd)}</td>
-          <td class="px-3 py-2 text-right">${R$(inv)}</td>
-          <td class="px-3 py-2 text-right">
-            <input type="number" step="any" value="${p || ''}" data-ticker="${t}"
-              class="w-24 text-right border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 price">
-          </td>
-          <td class="px-3 py-2 text-right">${p ? R$(val) : '—'}</td>
-          <td class="px-3 py-2 text-right">${p ? R$(ret) : '—'}</td>
-          <td class="px-3 py-2 text-right">${p ? pct.toFixed(2) + '%' : '—'}</td>`;
+                    <td class="px-4 py-3 font-medium">${t}</td>
+                    <td class="px-4 py-3 text-right">${qtd}</td>
+                    <td class="px-4 py-3 text-right">${R$(inv / qtd)}</td>
+                    <td class="px-4 py-3 text-right font-medium">${R$(inv)}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex justify-end">
+                            <input type="number" step="any" value="${p || ''}" data-ticker="${t}"
+                                class="w-32 text-right border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition price">
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium ${p ? (val >= inv ? 'text-green-600' : 'text-red-600') : ''}">
+                        ${p ? R$(val) : '—'}
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium ${p ? (ret >= 0 ? 'text-green-600' : 'text-red-600') : ''}">
+                        ${p ? R$(ret) : '—'}
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium ${p ? (pct >= 0 ? 'text-green-600' : 'text-red-600') : ''}">
+                        ${p ? pct.toFixed(2) + '%' : '—'}
+                    </td>`;
                 tbody.appendChild(tr);
 
                 totQtd += qtd; totInv += inv; totVal += val;
@@ -268,6 +312,10 @@
             id('totVal').textContent = totVal ? R$(totVal) : '—';
             id('totRet').textContent = totInv ? R$(totRet) : '—';
             id('totPct').textContent = totInv ? totPct.toFixed(2) + '%' : '—';
+
+            // Colorir totais
+            id('totRet').className = 'px-4 py-3 text-right font-bold ' + (totRet >= 0 ? 'text-green-600' : 'text-red-600');
+            id('totPct').className = 'px-4 py-3 text-right font-bold ' + (totPct >= 0 ? 'text-green-600' : 'text-red-600');
 
             // preço atual → recalcular
             tbody.querySelectorAll('.price').forEach(inp => {
@@ -300,8 +348,19 @@
 
         /* ---------- Inicialização ---------- */
         function renderAll() { renderAportes(); renderResumo(); }
-        renderAll();
-        id('anoAtual').textContent = new Date().getFullYear();
+
+        // Atualizar data
+        function atualizarData() {
+            const data = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('dataAtual').textContent = data.toLocaleDateString('pt-BR', options);
+        }
+
+        // Inicializar
+        window.onload = () => {
+            renderAll();
+            atualizarData();
+        };
     </script>
 </body>
 
